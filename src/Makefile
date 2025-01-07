@@ -60,13 +60,18 @@ test: clean $(LIB) $(TEST_OBJ)
 	python3 p.py || (rm -f s21_decimal.so && exit 1)
 
 # gcov_report target
-gcov_report: clean $(LIB_OBJDIR) $(TEST_OBJDIR)
-	@$(MAKE) CFLAGS="$(CFLAGS_GCOV)" LDFLAGS="$(LDFLAGS_GCOV)" $(LIB)
-	@$(MAKE) CFLAGS="$(CFLAGS_GCOV)" LDFLAGS="$(LDFLAGS_GCOV)" test
-	./$(TEST_EXEC) || true
-	lcov -t "Report" -c -d ./ --output-file ./coverage.info
-	genhtml ./coverage.info --output-directory ./report/
-	@echo "\033[7;1;32m\t\t                      GCOV REPORT IS DONE                        \033[0m"
+GCOV_FLAGS = -fprofile-arcs -ftest-coverage --coverage
+GCOV_LIBS = -lgcov
+
+gcov_report: clean
+	$(foreach src,$(SRC),$(CC) $(CFLAGS) $(GCOV_FLAGS) -c $(src);)
+	ar rcs $(LIB) *.o
+	$(CC) $(CFLAGS) $(GCOV_FLAGS) -shared -o s21_decimal.so test_lib_builder.c $(LIB) -fPIC
+	python3 p.py || true
+	lcov -t "s21_decimal" -o coverage.info -c -d .
+	genhtml -o report coverage.info
+	@echo "\033[32m\t\t                      GCOV REPORT IS DONE                        \033[0m"
+	@echo "\033[32m\t\t          report generated in ./report/index.html                       \033[0m"
 
 # clean target
 clean:
