@@ -5,29 +5,25 @@ int s21_is_less(s21_decimal a, s21_decimal b) {
   int result = 0;
 
   if (s21_valid_decimal(&a) && s21_valid_decimal(&b)) {
-    // Get signs (31st bit of bits[3])
     int sign_a = (a.bits[3] >> 31) & 1;
     int sign_b = (b.bits[3] >> 31) & 1;
 
     if (sign_a != sign_b) {
-      result =
-          sign_a > sign_b;  // If a is negative and b is positive, a is less
+      result = sign_a > sign_b;
     } else {
-      // Create copies to level the decimals (adjust exponents)
       s21_decimal a_copy = a;
       s21_decimal b_copy = b;
       level_decimals(&a_copy, &b_copy);
 
-      // Compare mantissa (bits[0-2])
       int i = 2;
       while (i >= 0 && a_copy.bits[i] == b_copy.bits[i]) {
         i--;
       }
 
-      if (i >= 0) {     // If numbers are different
-        if (!sign_a) {  // If both numbers are positive
+      if (i >= 0) {
+        if (!sign_a) {
           result = a_copy.bits[i] < b_copy.bits[i];
-        } else {  // If both numbers are negative
+        } else {
           result = a_copy.bits[i] > b_copy.bits[i];
         }
       }
