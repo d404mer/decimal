@@ -23,7 +23,7 @@ SRCDIR = .
 LIB_OBJDIR = lib_obj
 TEST_OBJDIR = tests_obj
 
-SRC = $(wildcard $(SRCDIR)/s21_*.c) $(SRCDIR)/binary.c $(SRCDIR)/decimal.c
+SRC = $(wildcard $(SRCDIR)/s21_*.c) $(SRCDIR)/binary.c $(SRCDIR)/decimal.c $(SRCDIR)/test_lib_builder.c
 LIB_OBJ = $(patsubst $(SRCDIR)/%.c, $(LIB_OBJDIR)/%.o, $(SRC))
 LIB = s21_decimal.a
 
@@ -31,7 +31,6 @@ LIB = s21_decimal.a
 TEST_DIR = tests
 TEST_SRC = $(wildcard $(TEST_DIR)/test_s21_*.c)
 TEST_OBJ = $(patsubst $(TEST_DIR)/%.c, $(TEST_OBJDIR)/%.o, $(TEST_SRC))
-TEST_EXEC = s21_decimal_test
 
 # default target
 all: $(LIB)
@@ -56,8 +55,9 @@ $(TEST_OBJDIR)/%.o: $(TEST_DIR)/%.c | $(TEST_OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # build and run tests
-test: $(LIB) 
-	gcc -shared -o decimal.so test_lib_builder.c -L. $(LIBLINK) -fPIC
+test: clean $(LIB) $(TEST_OBJ)
+	$(CC) -shared -o s21_decimal.so test_lib_builder.c $(LIBLINK) -fPIC
+	python3 p.py || (rm -f s21_decimal.so && exit 1)
 
 # gcov_report target
 gcov_report: clean $(LIB_OBJDIR) $(TEST_OBJDIR)
