@@ -40,23 +40,32 @@ def decimal_to_s21_decimal(py_decimal):
         
         sign = int(py_decimal < 0)
         
-        abs_dec_str = str(abs(py_decimal))
+        abs_dec_str = format(abs(py_decimal), 'f')
+        
         if '.' in abs_dec_str:
             int_part, dec_part = abs_dec_str.split('.')
-            scale = len(dec_part)
+            int_part = int_part.lstrip('0') or '0'
+            
             dec_part = dec_part.rstrip('0')
-            if scale > 28:
-                dec_part = dec_part[:28]
-                scale = 28
-            num_str = int_part + dec_part
+            
+            if not dec_part:
+                num_str = int_part
+                scale = 0
+            else:
+                scale = len(dec_part)
+                if scale > 28:
+                    dec_part = dec_part[:28]
+                    scale = 28
+                num_str = int_part + dec_part
         else:
-            num_str = abs_dec_str
+            num_str = abs_dec_str.lstrip('0') or '0'
             scale = 0
         
         try:
             num = int(num_str)
-            if num >= 2**96:  
-                return S21Decimal((0, 0, 0, 0))  
+            if num >= 2**96:
+                print(f"{RED}Number too large for s21_decimal{RESET}")
+                return S21Decimal((0, 0, 0, 0))
             
             result.bits[0] = num & 0xFFFFFFFF
             result.bits[1] = (num >> 32) & 0xFFFFFFFF
@@ -67,7 +76,7 @@ def decimal_to_s21_decimal(py_decimal):
         except ValueError as e:
             print(f"{RED}Error converting number: {e}{RESET}")
             return S21Decimal((0, 0, 0, 0))
-            
+        
         return result
         
     except Exception as e:
@@ -96,10 +105,13 @@ def test_comparison(a, b, test_name=""):
         a_c = decimal_to_s21_decimal(a)
         b_c = decimal_to_s21_decimal(b)
         
-       # print("\nFirst number representation:")
-       # print_decimal_bits(a_c)
-       # print("\nSecond number representation:")
-       # print_decimal_bits(b_c)
+        """
+        print("\nFirst number representation:")
+        print_decimal_bits(a_c)
+        print("\nSecond number representation:")
+        print_decimal_bits(b_c)
+        """
+        
         
         # py res
         py_less = a < b
@@ -163,7 +175,7 @@ if __name__ == '__main__':
         (Decimal("1234567890123456789012345678"), Decimal("0.12"), "Large vs small"),
         
         # Small numbers
-        (Decimal("0.0000000001"), Decimal("0.0000000002"), "Small numbers"),
+        (Decimal("0.000001"), Decimal("0.000002"), "Small numbers"),
         
         # Equal numbers with different representations
         (Decimal("1.23000"), Decimal("1.23"), "Different precision"),

@@ -157,14 +157,14 @@ dec_map normalize_decimal(dec_map value) {
 
 #include <stdio.h>
 
-int main() {
-  dec_map f = {{0xFFFFFFFA, 0, 0}};
-  int d = divisible_by_ten(f);
-  printf("%d\n", d);
-  int h = 6789 + d;
+// int main() {
+//   dec_map f = {{0xFFFFFFFA, 0, 0}};
+//   int d = divisible_by_ten(f);
+//   printf("%d\n", d);
+//   int h = 6789 + d;
 
-  dec_map s = div_by_ten(&f);
-  printf("%u %u  %u\n", s.mantissa[0], s.mantissa[1], s.zero_bytes);
+//   dec_map s = div_by_ten(&f);
+//   printf("%u %u  %u\n", s.mantissa[0], s.mantissa[1], s.zero_bytes);
 
-  // printf("%u %u  %u\n", f.mantissa[0], f.mantissa[1], f.zero_bytes);
-}
+//   // printf("%u %u  %u\n", f.mantissa[0], f.mantissa[1], f.zero_bytes);
+// }
