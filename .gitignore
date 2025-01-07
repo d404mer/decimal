@@ -54,10 +54,14 @@ dkms.conf
 
 *.a
 *.so 
+*.gcda
+*.gcno
 
 s21_decimal
 s21_decimal_test
 
-/lib_obj
+/report
 
-/tests_obj
+
+coverage.info
+
