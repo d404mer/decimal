@@ -70,6 +70,6 @@ gcov_report: clean $(LIB_OBJDIR) $(TEST_OBJDIR)
 
 # clean target
 clean:
-	rm -rf *.o $(LIB_OBJDIR) $(TEST_OBJDIR) $(LIB) $(TEST_EXEC) *.gcda *.gcno ./report coverage.info
+	rm -rf *.o $(LIB_OBJDIR) $(TEST_OBJDIR) $(LIB) $(TEST_EXEC) *.gcda *.gcno ./report coverage.info *.so
 
 .PHONY: all clean test gcov_report
