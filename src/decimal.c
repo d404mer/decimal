@@ -49,7 +49,7 @@ int s21_add(s21_decimal val1, s21_decimal val2, s21_decimal *res) {
   return ret;
 }
 
-int main() {
+/* int main() {
   // s21_decimal dec = {0};
   // dec_map m = {{0, 0, 0x800000}, 0, 0, 0, 0};
 
@@ -65,4 +65,4 @@ int main() {
     d += 1;
   }
   printf("%f\n", d);
-}
+}*/

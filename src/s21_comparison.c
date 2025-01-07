@@ -5,20 +5,31 @@ int s21_is_less(s21_decimal a, s21_decimal b) {
   int result = 0;
 
   if (s21_valid_decimal(&a) && s21_valid_decimal(&b)) {
-    dec_map *a_map = (dec_map *)&a;
-    dec_map *b_map = (dec_map *)&b;
+    // Get signs (31st bit of bits[3])
+    int sign_a = (a.bits[3] >> 31) & 1;
+    int sign_b = (b.bits[3] >> 31) & 1;
 
-    if (a_map->sign != b_map->sign) {
-      result = a_map->sign > b_map->sign;
+    if (sign_a != sign_b) {
+      result =
+          sign_a > sign_b;  // If a is negative and b is positive, a is less
     } else {
-      dec_map a_copy = *a_map;
-      dec_map b_copy = *b_map;
+      // Create copies to level the decimals (adjust exponents)
+      s21_decimal a_copy = a;
+      s21_decimal b_copy = b;
+      level_decimals(&a_copy, &b_copy);
 
-      level_decimals((s21_decimal *)&a_copy, (s21_decimal *)&b_copy);
+      // Compare mantissa (bits[0-2])
+      int i = 2;
+      while (i >= 0 && a_copy.bits[i] == b_copy.bits[i]) {
+        i--;
+      }
 
-      if (!decimal_is_zero(&a_copy) || !decimal_is_zero(&b_copy)) {
-        dec_map diff = sub_mantisses(b_copy, a_copy);
-        result = (a_map->sign) ? !diff.sign : diff.sign;
+      if (i >= 0) {     // If numbers are different
+        if (!sign_a) {  // If both numbers are positive
+          result = a_copy.bits[i] < b_copy.bits[i];
+        } else {  // If both numbers are negative
+          result = a_copy.bits[i] > b_copy.bits[i];
+        }
       }
     }
   }
@@ -33,7 +44,9 @@ int s21_is_equal(s21_decimal a, s21_decimal b) {
     dec_map *a_map = (dec_map *)&a;
     dec_map *b_map = (dec_map *)&b;
 
-    if (a_map->sign == b_map->sign) {
+    if (decimal_is_zero(a_map) && decimal_is_zero(b_map)) {
+      result = 1;
+    } else if (a_map->sign == b_map->sign) {
       dec_map a_copy = *a_map;
       dec_map b_copy = *b_map;
 

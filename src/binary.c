@@ -118,21 +118,23 @@ int most_significant_bit(dec_map value) {
   return ret;
 }
 
-int len_of_number(dec_map value){
+int len_of_number(dec_map value) {
   double log_of_2 = 0.301;
   int binary_len = most_significant_bit(value);
   return (int)(binary_len * log_of_2) + 1;
 }
 
-int divisible_by_ten(dec_map value){
-  uint64_t sum = (uint64_t)value.mantissa[0] + (uint64_t)value.mantissa[1] + (uint64_t)value.mantissa[2] + (uint64_t)value.zero_bytes;
+int divisible_by_ten(dec_map value) {
+  uint64_t sum = (uint64_t)value.mantissa[0] + (uint64_t)value.mantissa[1] +
+                 (uint64_t)value.mantissa[2] + (uint64_t)value.zero_bytes;
   int divisible = !(sum % 5) && !(value.mantissa[0] % 2);
   return divisible;
 }
 
-dec_map div_by_ten(dec_map *value){
+dec_map div_by_ten(dec_map *value) {
   dec_map q, r;
-  q = add_mantisses(shift_mantissa_right(value, 1), shift_mantissa_right(value, 2));
+  q = add_mantisses(shift_mantissa_right(value, 1),
+                    shift_mantissa_right(value, 2));
   q = add_mantisses(q, shift_mantissa_right(&q, 4));
   q = add_mantisses(q, shift_mantissa_right(&q, 8));
   q = add_mantisses(q, shift_mantissa_right(&q, 16));
@@ -145,8 +147,8 @@ dec_map div_by_ten(dec_map *value){
   // return q;
 }
 
-dec_map normalize_decimal(dec_map value){
-  while(value.exp && divisible_by_ten(value)){
+dec_map normalize_decimal(dec_map value) {
+  while (value.exp && divisible_by_ten(value)) {
     value = div_by_ten(&value);
     value.exp--;
   }
@@ -160,11 +162,9 @@ int main() {
   int d = divisible_by_ten(f);
   printf("%d\n", d);
   int h = 6789 + d;
-  
+
   dec_map s = div_by_ten(&f);
   printf("%u %u  %u\n", s.mantissa[0], s.mantissa[1], s.zero_bytes);
-  
-  //printf("%u %u  %u\n", f.mantissa[0], f.mantissa[1], f.zero_bytes);
+
+  // printf("%u %u  %u\n", f.mantissa[0], f.mantissa[1], f.zero_bytes);
 }
-
-

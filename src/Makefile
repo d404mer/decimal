@@ -1,6 +1,7 @@
 # comp & comp flags
 CC = gcc
-CFLAGS = -std=c11 -Wall -Wextra -Werror 
+# add -Werror 
+CFLAGS = -std=c11 -Wall -Wextra      
 CFLAGS_GCOV = $(CFLAGS) -fprofile-arcs -ftest-coverage 
 
 # for diff linking on MacOS and Linux
@@ -22,7 +23,7 @@ SRCDIR = .
 LIB_OBJDIR = lib_obj
 TEST_OBJDIR = tests_obj
 
-SRC = $(wildcard $(SRCDIR)/s21_*.c)
+SRC = $(wildcard $(SRCDIR)/s21_*.c) $(SRCDIR)/binary.c $(SRCDIR)/decimal.c
 LIB_OBJ = $(patsubst $(SRCDIR)/%.c, $(LIB_OBJDIR)/%.o, $(SRC))
 LIB = s21_decimal.a
 
@@ -52,22 +53,20 @@ $(LIB_OBJDIR)/%.o: $(SRCDIR)/%.c | $(LIB_OBJDIR)
 
 # test object files
 $(TEST_OBJDIR)/%.o: $(TEST_DIR)/%.c | $(TEST_OBJDIR)
-	$(CC) -std=c11 -Wall -Wextra -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # build and run tests
-test: $(LIB) $(TEST_OBJDIR) $(TEST_OBJ)
-	$(CC) $(CFLAGS) $(TEST_OBJ) $(LIBLINK) -o $(TEST_EXEC) $(LDFLAGS)
+test: $(LIB) 
+	gcc -shared -o decimal.so test_lib_builder.c -L. $(LIBLINK) -fPIC
 
-# gcov_report target with rebuilding the library and tests with gcov flags
+# gcov_report target
 gcov_report: clean $(LIB_OBJDIR) $(TEST_OBJDIR)
 	@$(MAKE) CFLAGS="$(CFLAGS_GCOV)" LDFLAGS="$(LDFLAGS_GCOV)" $(LIB)
 	@$(MAKE) CFLAGS="$(CFLAGS_GCOV)" LDFLAGS="$(LDFLAGS_GCOV)" test
-	./s21_string_test || true
+	./$(TEST_EXEC) || true
 	lcov -t "Report" -c -d ./ --output-file ./coverage.info
 	genhtml ./coverage.info --output-directory ./report/
-
 	@echo "\033[7;1;32m\t\t                      GCOV REPORT IS DONE                        \033[0m"
-
 
 # clean target
 clean:
