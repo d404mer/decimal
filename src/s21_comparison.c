@@ -13,7 +13,9 @@ int s21_is_less(s21_decimal a, s21_decimal b) {
     } else {
       s21_decimal a_copy = a;
       s21_decimal b_copy = b;
-      level_decimals(&a_copy, &b_copy);
+      int last_digit = 0;
+
+      level_decimals(&a_copy, &b_copy, &last_digit);
 
       int i = 2;
       while (i >= 0 && a_copy.bits[i] == b_copy.bits[i]) {
@@ -29,7 +31,6 @@ int s21_is_less(s21_decimal a, s21_decimal b) {
       }
     }
   }
-
   return result;
 }
 
@@ -45,8 +46,11 @@ int s21_is_equal(s21_decimal a, s21_decimal b) {
     } else if (a_map->sign == b_map->sign) {
       dec_map a_copy = *a_map;
       dec_map b_copy = *b_map;
+      int last_digit = 0;
 
-      level_decimals((s21_decimal *)&a_copy, (s21_decimal *)&b_copy);
+      level_decimals((s21_decimal *)&a_copy, (s21_decimal *)&b_copy,
+                     &last_digit);
+
       dec_map diff = sub_mantisses(b_copy, a_copy);
       result = decimal_is_zero(&diff);
     }

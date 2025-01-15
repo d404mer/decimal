@@ -62,5 +62,5 @@ int s21_truncate(s21_decimal, s21_decimal *);
 int s21_negate(s21_decimal, s21_decimal *);
 
 int s21_valid_decimal(s21_decimal *value);
-void level_decimals(s21_decimal *value1, s21_decimal *value2);
+int level_decimals(s21_decimal *value1, s21_decimal *value2, int *last_digit);
 #endif
