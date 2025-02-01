@@ -99,8 +99,42 @@ gcov_report: clean
 	@echo "\033[32m\t\t          report generated in ./report/index.html                \033[0m"
 	rm -f *.gcda *.gcno *.o coverage.info
 
+gcov_report_console: clean
+	mkdir -p $(LIB_OBJDIR)
+	$(foreach src,$(SRC),$(CC) $(CFLAGS_GCOV) -fPIC -c $(src) -o $(LIB_OBJDIR)/$(notdir $(src:.c=.o));)
+	ar rcs $(LIB) $(LIB_OBJDIR)/*.o
+
+	mkdir -p $(TEST_OBJDIR)
+	$(foreach test,$(TEST_SRC),$(CC) $(CFLAGS_GCOV) -c $(test) -o $(TEST_OBJDIR)/$(notdir $(test:.c=.o));)
+
+	$(CC) $(CFLAGS_GCOV) -o s21_decimal_test.exe $(TEST_OBJDIR)/*.o $(LDFLAGS_GCOV) $(LIBLINK)
+
+	$(CC) $(CFLAGS_GCOV) $(SHARED_FLAGS) -o s21_decimal.so test_s21_test_lib_builder.c $(LIB_OBJDIR)/*.o
+
+	./s21_decimal_test.exe || true
+	python3 ./tests/p.py || true
+
+	gcov -H $(LIB_OBJDIR)/*.gcno
+
+
 # clean target
 clean:
-	rm -rf *.o $(LIB_OBJDIR) $(TEST_OBJDIR) $(LIB) s21_decimal_test.exe *.gcda *.gcno ./report coverage.info *.so tests/*.gcno
+	rm -rf *.o \
+		$(LIB_OBJDIR) \
+		$(TEST_OBJDIR) \
+		$(LIB) \
+		s21_decimal_test.exe \
+		*.gcda \
+		*.gcno \
+		./report \
+		coverage.info \
+		*.so \
+		tests/*.gcno \
+		*.html \
+		*.css \
+		$(TBD) \
+		*.c.gcov \
+		*/*.c.gcov \
+		*/*/*.c.gcov
 
 .PHONY: all clean test gcov_report shared
