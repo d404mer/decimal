@@ -13,12 +13,22 @@ int s21_sub(s21_decimal val1, s21_decimal val2, s21_decimal *res) {
     uint32_t exp = level_decimals(&val1, &val2, NULL);
     if (!val1.fields.sign && val2.fields.sign) {
       result = s21_add_mantisses(val1, val2);
-      result.fields.sign = val1.fields.sign;
+      result.fields.sign = 0;
     } else if (val1.fields.sign && !val2.fields.sign) {
-      result = s21_add_mantisses(val2, val1);
-      result.fields.sign = val1.fields.sign;
+      result = s21_add_mantisses(val1, val2);
+      result.fields.sign = 1;
     } else {
+      s21_decimal abs1 = val1, abs2 = val2;
+      abs1.fields.sign = abs2.fields.sign = 0;
+
       result = s21_sub_mantisses(val1, val2);
+      if (s21_is_greater(abs1, abs2)) {
+        result.fields.sign = val1.fields.sign;
+      } else if (s21_is_less(abs1, abs2)) {
+        result.fields.sign = !val1.fields.sign;
+      } else {
+        result.fields.sign = 0;
+      }
     }
     result = s21_normalize_decimal(result);
     int valid = s21_is_valid_decimal(&result);
@@ -119,11 +129,10 @@ int s21_div(s21_decimal a, s21_decimal b, s21_decimal *res) {
       i++;
 
       // result.fields.exp++;
-    } while (!uint256_is_zero(rem) &&
-             i < 30);
+    } while (!uint256_is_zero(rem) && i < 30);
     unsigned int digit = 0;
     res256 = uint256_divide_by_ten(res256, &digit);
-    if(digit > 5 || (digit == 5 && res256.bits[0] % 2)){
+    if (digit > 5 || (digit == 5 && res256.bits[0] % 2)) {
       res256 = uint256_add(res256, uint256_get_one());
     }
     ret = 0;
@@ -136,6 +145,7 @@ int s21_div(s21_decimal a, s21_decimal b, s21_decimal *res) {
   return ret;
 }
 
+/*
 int main() {
   s21_decimal a = s21_decimal_from_string("55555555555555555555555555555");
   s21_decimal b = s21_decimal_from_string("0.5");
@@ -152,3 +162,4 @@ int main() {
   printf("exp %d\n",result.fields.exp);
   print_dec(result, "ints");
 }
+*/

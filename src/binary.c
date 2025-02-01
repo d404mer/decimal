@@ -13,7 +13,7 @@ void swap_ptr(void **ptr1, void **ptr2) {
 
 int level_decimals(s21_decimal *value1, s21_decimal *value2, int *last_digit) {
   int exp_diff = value2->fields.exp - value1->fields.exp;
-  printf("exp dif  : %d\n",exp_diff);
+  printf("exp dif  : %d\n", exp_diff);
   if (exp_diff < 0) {
     swap_ptr((void **)&value1, (void **)&value2);
     exp_diff = -exp_diff;
@@ -25,8 +25,8 @@ int level_decimals(s21_decimal *value1, s21_decimal *value2, int *last_digit) {
       *value2 = s21_decimal_divide_by_ten(*value1, last_digit);
   }
   *value1 = s21_decimal_mult_by_pow_of_ten(value1, exp_diff);
-  printf("value exp : %d\n",value1->fields.exp);
-  value1->fields.exp += exp_diff;
+  printf("value exp : %d\n", value1->fields.exp);
+  value1->fields.exp = value2->fields.exp;
   return 1;
 }
 
@@ -40,8 +40,7 @@ s21_decimal s21_decimal_from_string(const char *dec) {
   }
   int max_len = 29;
   while (i < len) {
-    if (i == max_len)
-      break;
+    if (i == max_len) break;
     if (s21_decimal_is_zero(&ret)) {
       max_len++;
     }
@@ -70,12 +69,10 @@ void print_s21_decimal(s21_decimal r, char *name) {
   if (exp < len) {
     len++;
   }
-  if (r.fields.sign)
-    printf("-");
+  if (r.fields.sign) printf("-");
   while (exp >= len) {
     printf("0");
-    if (exp == r.fields.exp)
-      printf(".");
+    if (exp == r.fields.exp) printf(".");
     exp--;
   }
   int i = 0;
@@ -172,8 +169,7 @@ s21_decimal s21_decimal_get_one() { return (s21_decimal){{1, 0, 0, 0}}; }
 
 int s21_decimal_is_zero(s21_decimal *value) {
   int ret = 0;
-  for (int i = 0; i < 3; i++)
-    ret += value->fields.mantissa[i];
+  for (int i = 0; i < 3; i++) ret += value->fields.mantissa[i];
   ret += value->fields.zero_bytes;
   return ret == 0;
 }
@@ -241,8 +237,7 @@ s21_decimal s21_decimal_divide_by_ten(s21_decimal value, int *remainder) {
     value.fields.mantissa[i] = digit / 10;
     rem = digit % 10;
   }
-  if (remainder)
-    *remainder = rem;
+  if (remainder) *remainder = rem;
   return value;
 }
 
@@ -253,14 +248,14 @@ s21_decimal s21_decimal_set_bit(s21_decimal a, unsigned int bit) {
   return a;
 }
 
-int s21_is_greater_or_equal(s21_decimal a, s21_decimal b) {
+/* int s21_is_greater_or_equal(s21_decimal a, s21_decimal b) {
   a.bits[3] = a.fields.zero_bytes;
   b.bits[3] = b.fields.zero_bytes;
   int f = s21_decimal_most_significant_bit(a) / 32;
   int s = s21_decimal_most_significant_bit(b) / 32;
   f = f > s ? f : s;
   return a.bits[f] >= b.bits[f];
-}
+} */
 
 unsigned int s21_decimal_get_bit(s21_decimal a, unsigned int bit) {
   unsigned int i = bit / 32;
@@ -282,8 +277,7 @@ s21_decimal s21_div_mantisses(s21_decimal num, s21_decimal div,
     }
   }
   quot.fields.sign = num.fields.sign != div.fields.sign ? 1 : 0;
-  if (remainder)
-    *remainder = rem;
+  if (remainder) *remainder = rem;
   return quot;
 }
 
@@ -293,11 +287,11 @@ s21_decimal s21_normalize_decimal(s21_decimal value) {
     value.fields.exp--;
   }
   int last_digit = 0;
-  while(value.fields.zero_bytes){
+  while (value.fields.zero_bytes) {
     value = s21_decimal_divide_by_ten(value, &last_digit);
     value.fields.exp--;
   }
-  if(last_digit > 5 || (last_digit == 5 && value.bits[0] % 2)){
+  if (last_digit > 5 || (last_digit == 5 && value.bits[0] % 2)) {
     value = s21_add_mantisses(value, s21_decimal_get_one());
   }
   return value;
