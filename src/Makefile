@@ -99,6 +99,7 @@ gcov_report: clean
 	@echo "\033[32m\t\t          report generated in ./report/index.html                \033[0m"
 	rm -f *.gcda *.gcno *.o coverage.info
 
+
 gcov_report_console: clean
 	mkdir -p $(LIB_OBJDIR)
 	$(foreach src,$(SRC),$(CC) $(CFLAGS_GCOV) -fPIC -c $(src) -o $(LIB_OBJDIR)/$(notdir $(src:.c=.o));)
