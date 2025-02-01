@@ -13,7 +13,9 @@ void swap_ptr(void **ptr1, void **ptr2) {
 
 int level_decimals(s21_decimal *value1, s21_decimal *value2, int *last_digit) {
   int exp_diff = value2->fields.exp - value1->fields.exp;
-  printf("exp dif  : %d\n", exp_diff);
+  // printf("value1: %u (exp: %d)\n", value1->bits[0], value1->fields.exp);
+  // printf("value2: %u (exp: %d)\n", value2->bits[0], value2->fields.exp);
+
   if (exp_diff < 0) {
     swap_ptr((void **)&value1, (void **)&value2);
     exp_diff = -exp_diff;
@@ -25,8 +27,12 @@ int level_decimals(s21_decimal *value1, s21_decimal *value2, int *last_digit) {
       *value2 = s21_decimal_divide_by_ten(*value1, last_digit);
   }
   *value1 = s21_decimal_mult_by_pow_of_ten(value1, exp_diff);
-  printf("value exp : %d\n", value1->fields.exp);
+  // printf("value exp : %d\n", value1->fields.exp);
   value1->fields.exp = value2->fields.exp;
+
+  // printf("value1: %u (exp: %d)\n", value1->bits[0], value1->fields.exp);
+  // printf("value2: %u (exp: %d)\n", value2->bits[0], value2->fields.exp);
+
   return 1;
 }
 
@@ -186,12 +192,15 @@ s21_decimal s21_add_mantisses(s21_decimal val1, s21_decimal val2) {
 }
 
 s21_decimal s21_sub_mantisses(s21_decimal val1, s21_decimal val2) {
+  // printf("val1: %u (exp: %d)\n", val1.bits[0], val1.fields.exp);
+  // printf("val2: %u (exp: %d)\n", val2.bits[0], val2.fields.exp);
   val2 = s21_decimal_twos_complement(val2);
   val2 = s21_add_mantisses(val1, val2);
   if (val2.fields.zero_bytes == 0xFFFF) {
     val2 = s21_decimal_twos_complement(val2);
     val2.fields.sign = 1;
   }
+  // printf("result: %u (exp: %d)\n", val2.bits[0], val2.fields.exp);
   return val2;
 }
 

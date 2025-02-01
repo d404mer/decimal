@@ -30,12 +30,22 @@ int s21_sub(s21_decimal val1, s21_decimal val2, s21_decimal *res) {
         result.fields.sign = 0;
       }
     }
-    result = s21_normalize_decimal(result);
+
+    int saved_exp = val1.fields.exp;
+
+    if (result.fields.zero_bytes) {
+      result = s21_normalize_decimal(result);
+    } else {
+      result.fields.exp = saved_exp;
+    }
+
     int valid = s21_is_valid_decimal(&result);
-    print_dec(result, "result");
+    printf("\n\n\n ---- result: %u (exp: %d)\n", result.bits[0],
+           result.fields.exp);
 
     if (valid) {
       *res = result;
+      printf("\n\n\n res: %u (exp: %d)\n", res->bits[0], res->fields.exp);
     } else if (result.fields.exp > 28 || result.fields.zero_bytes) {
       ret = 1 + result.fields.sign;
     } else {
